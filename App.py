@@ -1,4 +1,3 @@
-
 import streamlit as st
 import asyncio
 import edge_tts
@@ -12,92 +11,91 @@ st.subheader("Multi-Voice Text-to-Speech & AI Story Generator")
 
 app_mode = st.sidebar.radio("Select Mode:", ["1. Custom Text-to-Speech (Apna Text)", "2. Free AI Story Generator"])
 
-# 60+ Complete Voices Dictionary including Regional Languages & Special Styles
+# 20 MALE & 20 FEMALE DEDICATED URDU VOICE CHARACTERS + REGIONAL & ARABIC
 VOICES = {
-    # --- SPECIAL & CELEBRITY STYLES ---
-    "🕌 Islamic Respectful Voice (Urdu Soft)": {"id": "ur-PK-AsadNeural", "pitch": "+0Hz", "rate": "-5%"},
-    "🇵🇰 Imran Khan Style (Deep Male)": {"id": "ur-PK-AsadNeural", "pitch": "-4Hz", "rate": "+0%"},
-    "🏏 Babar Azam Style (Calm Male)": {"id": "ur-PK-AsadNeural", "pitch": "+0Hz", "rate": "-5%"},
-    "👔 Nawaz Sharif Style (Slow Deep Male)": {"id": "ur-PK-AsadNeural", "pitch": "-6Hz", "rate": "-10%"},
-    "⚡ Shahbaz Sharif Style (Fast Male)": {"id": "ur-PK-AsadNeural", "pitch": "-2Hz", "rate": "+15%"},
-    "👩‍💼 Maryam Nawaz Style (Confident Female)": {"id": "ur-PK-UzmaNeural", "pitch": "+2Hz", "rate": "+0%"},
-    "📜 Shayari & Poet Style (Dramatic Voice)": {"id": "ur-PK-AsadNeural", "pitch": "-4Hz", "rate": "-10%"},
+    # ==================== 20 MALE URDU CHARACTERS ====================
+    "👨‍💼 Male Urdu 01 - Asad (Standard News/Formal)": {"id": "ur-PK-AsadNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "👨‍🏫 Male Urdu 02 - Salman (Soft & Polite)": {"id": "ur-IN-SalmanNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "🎙️ Male Urdu 03 - Deep Storyteller (Bhari Aawaz)": {"id": "ur-PK-AsadNeural", "pitch": "-6Hz", "rate": "-5%"},
+    "⚡ Male Urdu 04 - Energetic Presenter (Fast & Crisp)": {"id": "ur-PK-AsadNeural", "pitch": "+2Hz", "rate": "+15%"},
+    "📻 Male Urdu 05 - Radio RJ Style (Smooth & Warm)": {"id": "ur-IN-SalmanNeural", "pitch": "-2Hz", "rate": "+0%"},
+    "👴 Male Urdu 06 - Elderly Grandfather (Buzurg)": {"id": "ur-PK-AsadNeural", "pitch": "-8Hz", "rate": "-15%"},
+    "👦 Male Urdu 07 - Young Boy Character": {"id": "ur-PK-AsadNeural", "pitch": "+8Hz", "rate": "+5%"},
+    "📜 Male Urdu 08 - Shayari & Poetry Master": {"id": "ur-PK-AsadNeural", "pitch": "-4Hz", "rate": "-10%"},
+    "🕌 Male Urdu 09 - Islamic Scholar / Molvi Style": {"id": "ur-PK-AsadNeural", "pitch": "-2Hz", "rate": "-8%"},
+    "🇵🇰 Male Urdu 10 - Leader / Politician Style": {"id": "ur-PK-AsadNeural", "pitch": "-5Hz", "rate": "+0%"},
+    "💼 Male Urdu 11 - Corporate Businessman": {"id": "ur-IN-SalmanNeural", "pitch": "+0Hz", "rate": "+5%"},
+    "🎓 Male Urdu 12 - Teacher / Professor": {"id": "ur-PK-AsadNeural", "pitch": "-2Hz", "rate": "-5%"},
+    "😱 Male Urdu 13 - Horror Story Voice (Ghabrahat / Suspense)": {"id": "ur-PK-AsadNeural", "pitch": "-10Hz", "rate": "-15%"},
+    "📖 Male Urdu 14 - Historical Narrator (Tareekhi Dastan)": {"id": "ur-PK-AsadNeural", "pitch": "-6Hz", "rate": "-10%"},
+    "🏏 Male Urdu 15 - Sports commentator (Joshila)": {"id": "ur-PK-AsadNeural", "pitch": "+4Hz", "rate": "+20%"},
+    "🎥 Male Urdu 16 - Movie Trailer Deep Voice": {"id": "ur-PK-AsadNeural", "pitch": "-12Hz", "rate": "-8%"},
+    "☕ Male Urdu 17 - Friendly Casual Conversation": {"id": "ur-IN-SalmanNeural", "pitch": "+2Hz", "rate": "+0%"},
+    "📢 Male Urdu 18 - Motivational Speaker": {"id": "ur-PK-AsadNeural", "pitch": "+0Hz", "rate": "+10%"},
+    "🧘 Male Urdu 19 - Calm & Meditation Guide": {"id": "ur-IN-SalmanNeural", "pitch": "-4Hz", "rate": "-15%"},
+    "💡 Male Urdu 20 - Tech & Science Reviewer": {"id": "ur-PK-AsadNeural", "pitch": "+2Hz", "rate": "+5%"},
 
-    # --- REGIONAL LANGUAGES (Sindhi & Saraiki / Western Punjabi) ---
+    # ==================== 20 FEMALE URDU CHARACTERS ====================
+    "👩‍💼 Female Urdu 01 - Uzma (Standard News/Formal)": {"id": "ur-PK-UzmaNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "👩‍🏫 Female Urdu 02 - Gul (Soft & Melodious)": {"id": "ur-IN-GulNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "📖 Female Urdu 03 - Storyteller / Dastangoi": {"id": "ur-PK-UzmaNeural", "pitch": "-2Hz", "rate": "-8%"},
+    "📻 Female Urdu 04 - Radio RJ / Show Host": {"id": "ur-IN-GulNeural", "pitch": "+2Hz", "rate": "+5%"},
+    "👧 Female Urdu 05 - Young Girl Character": {"id": "ur-PK-UzmaNeural", "pitch": "+8Hz", "rate": "+10%"},
+    "👵 Female Urdu 06 - Loving Grandmother (Dadi / Nani)": {"id": "ur-PK-UzmaNeural", "pitch": "-6Hz", "rate": "-15%"},
+    "📜 Female Urdu 07 - Poetry & Ghazal Reciter": {"id": "ur-IN-GulNeural", "pitch": "-2Hz", "rate": "-10%"},
+    "👩‍⚕️ Female Urdu 08 - Professional / Doctor Style": {"id": "ur-PK-UzmaNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "🎙️️ Female Urdu 09 - Commercial & Ad Voice": {"id": "ur-IN-GulNeural", "pitch": "+4Hz", "rate": "+10%"},
+    "🕌 Female Urdu 10 - Respectful Religious Teacher": {"id": "ur-PK-UzmaNeural", "pitch": "-2Hz", "rate": "-8%"},
+    "🌸 Female Urdu 11 - Gentle Bedtime Story Narrator": {"id": "ur-IN-GulNeural", "pitch": "-4Hz", "rate": "-12%"},
+    "🎓 Female Urdu 12 - School Teacher / Instructor": {"id": "ur-PK-UzmaNeural", "pitch": "+2Hz", "rate": "-2%"},
+    "⚡ Female Urdu 13 - Fast News Anchor": {"id": "ur-PK-UzmaNeural", "pitch": "+2Hz", "rate": "+15%"},
+    "🎭 Female Urdu 14 - Drama Character (Emotional)": {"id": "ur-IN-GulNeural", "pitch": "-4Hz", "rate": "-5%"},
+    "💡 Female Urdu 15 - Tech & Educational Explainer": {"id": "ur-PK-UzmaNeural", "pitch": "+0Hz", "rate": "+5%"},
+    "🌟 Female Urdu 16 - Confident & Bold Character": {"id": "ur-PK-UzmaNeural", "pitch": "-2Hz", "rate": "+5%"},
+    "🎨 Female Urdu 17 - Creative & Expressive Voice": {"id": "ur-IN-GulNeural", "pitch": "+4Hz", "rate": "+0%"},
+    "🍃 Female Urdu 18 - Soft Whispering / Relaxing": {"id": "ur-IN-GulNeural", "pitch": "-6Hz", "rate": "-20%"},
+    "🌍 Female Urdu 19 - Documentary Narrator": {"id": "ur-PK-UzmaNeural", "pitch": "-4Hz", "rate": "-8%"},
+    "🛍️ Female Urdu 20 - Shopping & Lifestyle Host": {"id": "ur-IN-GulNeural", "pitch": "+6Hz", "rate": "+12%"},
+
+    # ==================== OTHER LANGUAGES & SPECIALS ====================
     "Male - Sindhi Pakistan (Nabeel)": {"id": "sd-PK-NabeelNeural", "pitch": "+0Hz", "rate": "+0%"},
     "Female - Sindhi Pakistan (Uzma)": {"id": "sd-PK-UzmaNeural", "pitch": "+0Hz", "rate": "+0%"},
     "Male - Saraiki / Shahpuri (Asad)": {"id": "pnb-PK-AsadNeural", "pitch": "+0Hz", "rate": "+0%"},
     "Female - Saraiki / Shahpuri (Uzma)": {"id": "pnb-PK-UzmaNeural", "pitch": "+0Hz", "rate": "+0%"},
-
-    # --- 30 MALE VOICES ---
-    "Male 01 - Urdu Pakistan (Asad)": {"id": "ur-PK-AsadNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 02 - Arabic Saudi Arabia (Hamed - Quran Best)": {"id": "ar-SA-HamedNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 03 - Arabic UAE (Hamdan)": {"id": "ar-AE-HamdanNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 04 - Arabic Egypt (Shakir)": {"id": "ar-EG-ShakirNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 05 - English US (Guy - TikTok Style)": {"id": "en-US-GuyNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 06 - English US (Andrew Multilingual)": {"id": "en-US-AndrewMultilingualNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 07 - English US (Brian Multilingual)": {"id": "en-US-BrianMultilingualNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 08 - English US (Christopher)": {"id": "en-US-ChristopherNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 09 - English US (Eric)": {"id": "en-US-EricNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 10 - English US (Roger)": {"id": "en-US-RogerNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 11 - English UK (Ryan)": {"id": "en-GB-RyanNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 12 - English UK (Thomas)": {"id": "en-GB-ThomasNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 13 - English IN (Prabhat)": {"id": "en-IN-PrabhatNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 14 - Hindi (Madhur)": {"id": "hi-IN-MadhurNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 15 - Spanish (Alvaro)": {"id": "es-ES-AlvaroNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 16 - French (Henri)": {"id": "fr-FR-HenriNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 17 - German (Conrad)": {"id": "de-DE-ConradNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 18 - Italian (Diego)": {"id": "it-IT-DiegoNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 19 - Turkish (Ahmet)": {"id": "tr-TR-AhmetNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Male 20 - Russian (Dmitry)": {"id": "ru-RU-DmitryNeural", "pitch": "+0Hz", "rate": "+0%"},
-
-    # --- 30 FEMALE VOICES ---
-    "Female 01 - Urdu Pakistan (Uzma)": {"id": "ur-PK-UzmaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 02 - Arabic Saudi Arabia (Zariyah)": {"id": "ar-SA-ZariyahNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 03 - Arabic UAE (Fatima)": {"id": "ar-AE-FatimaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 04 - Arabic Egypt (Salma)": {"id": "ar-EG-SalmaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 05 - English US (Jenny - TikTok Style)": {"id": "en-US-JennyNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 06 - English US (Ava Multilingual)": {"id": "en-US-AvaMultilingualNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 07 - English US (Emma Multilingual)": {"id": "en-US-EmmaMultilingualNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 08 - English US (Ana Child)": {"id": "en-US-AnaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 09 - English US (Aria)": {"id": "en-US-AriaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 10 - English US (Michelle)": {"id": "en-US-MichelleNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 11 - English UK (Sonia)": {"id": "en-GB-SoniaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 12 - English UK (Libby)": {"id": "en-GB-LibbyNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 13 - English IN (Neerja)": {"id": "en-IN-NeerjaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 14 - Hindi (Swara)": {"id": "hi-IN-SwaraNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 15 - Spanish (Elvira)": {"id": "es-ES-ElviraNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 16 - French (Denise)": {"id": "fr-FR-DeniseNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 17 - German (Katja)": {"id": "de-DE-KatjaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 18 - Italian (Elsa)": {"id": "it-IT-ElsaNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 19 - Turkish (Emel)": {"id": "tr-TR-EmelNeural", "pitch": "+0Hz", "rate": "+0%"},
-    "Female 20 - Russian (Svetlana)": {"id": "ru-RU-SvetlanaNeural", "pitch": "+0Hz", "rate": "+0%"}
+    "Male - Arabic Saudi Arabia (Hamed - Quran Best)": {"id": "ar-SA-HamedNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "Female - Arabic Saudi Arabia (Zariyah)": {"id": "ar-SA-ZariyahNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "Male - English US (Guy)": {"id": "en-US-GuyNeural", "pitch": "+0Hz", "rate": "+0%"},
+    "Female - English US (Jenny)": {"id": "en-US-JennyNeural", "pitch": "+0Hz", "rate": "+0%"}
 }
 
 # Gender & Category Filter Options
 st.write("---")
-gender_filter = st.radio("Filter Voices Category:", ["All Voices (60+)", "Male Voices", "Female Voices", "Celebrity & Special Styles", "Sindhi & Saraiki"], horizontal=True)
+category_filter = st.radio(
+    "Filter Voices Category:", 
+    ["All Voices", "Urdu Male Voices (20)", "Urdu Female Voices (20)", "Sindhi & Saraiki", "Arabic / Quran"], 
+    horizontal=True
+)
 
-if gender_filter == "Male Voices":
-    filtered_voices = {k: v for k, v in VOICES.items() if k.startswith("Male")}
-elif gender_filter == "Female Voices":
-    filtered_voices = {k: v for k, v in VOICES.items() if k.startswith("Female")}
-elif gender_filter == "Sindhi & Saraiki":
+if category_filter == "Urdu Male Voices (20)":
+    filtered_voices = {k: v for k, v in VOICES.items() if "Male Urdu" in k}
+elif category_filter == "Urdu Female Voices (20)":
+    filtered_voices = {k: v for k, v in VOICES.items() if "Female Urdu" in k}
+elif category_filter == "Sindhi & Saraiki":
     filtered_voices = {k: v for k, v in VOICES.items() if "Sindhi" in k or "Saraiki" in k}
-elif gender_filter == "Celebrity & Special Styles":
-    filtered_voices = {k: v for k, v in VOICES.items() if not k.startswith("Male") and not k.startswith("Female")}
+elif category_filter == "Arabic / Quran":
+    filtered_voices = {k: v for k, v in VOICES.items() if "Arabic" in k}
 else:
     filtered_voices = VOICES
 
-selected_voice_name = st.selectbox("Choose Voice Accent / Character:", list(filtered_voices.keys()))
+selected_voice_name = st.selectbox("Choose Voice Character:", list(filtered_voices.keys()))
 selected_voice_cfg = filtered_voices[selected_voice_name]
 
-# Pitch & Rate Sliders
+# Pitch & Rate Manual Sliders
 col_pitch, col_rate = st.columns(2)
 with col_pitch:
-    pitch_val = st.slider("Pitch Adjustment (Hz):", min_value=-20, max_value=20, value=0, step=2)
+    pitch_val = st.slider("Fine Pitch Adjustment (Hz):", min_value=-20, max_value=20, value=0, step=2)
 with col_rate:
-    rate_val = st.slider("Speed Adjustment (%):", min_value=-30, max_value=30, value=0, step=5)
+    rate_val = st.slider("Fine Speed Adjustment (%):", min_value=-30, max_value=30, value=0, step=5)
 
 # Calculate final pitch and rate
 base_pitch = int(selected_voice_cfg["pitch"].replace("Hz", ""))
@@ -110,11 +108,10 @@ final_pitch = f"{'+' if final_pitch_num >= 0 else ''}{final_pitch_num}Hz"
 final_rate = f"{'+' if final_rate_num >= 0 else ''}{final_rate_num}%"
 
 async def generate_audio(text, voice_id, pitch, rate, output_file="story.mp3"):
-    # Arabic/Quranic script detection for slow and clear recitation
+    # Arabic script detection for slow and clear recitation
     is_arabic_script = any('\u0600' <= char <= '\u06FF' for char in text)
-    
     if is_arabic_script and "ar-" in voice_id:
-        rate = "-20%"  # Slow speed automatically for clear makhraj
+        rate = "-20%"
         pitch = "+0Hz"
         
     communicate = edge_tts.Communicate(text, voice_id, pitch=pitch, rate=rate)
@@ -125,12 +122,12 @@ if app_mode == "1. Custom Text-to-Speech (Apna Text)":
     st.write("### 🎙️ Direct Text to Speech")
     user_text = st.text_area(
         "Yahan apna text likhein:", 
-        "Welcome to Sial AI Stories! Type or paste any text here."
+        "خوش آمدید! سیال اے آئی اسٹوریز میں اپنا متن درج کریں اور بہترین آواز حاصل کریں۔"
     )
     
-    if st.button("Generate & Speak Audio"):
+    if st.button("Generate & Speak Audio 🎙️"):
         if user_text:
-            with st.spinner("Generating Audio..."):
+            with st.spinner("Generating High Quality Urdu Audio..."):
                 try:
                     if os.path.exists("story.mp3"):
                         os.remove("story.mp3")
@@ -145,7 +142,7 @@ if app_mode == "1. Custom Text-to-Speech (Apna Text)":
                             st.download_button(
                                 label="📥 Download Voice MP3",
                                 data=file,
-                                file_name="sial_ai_audio.mp3",
+                                file_name="sial_ai_urdu_voice.mp3",
                                 mime="audio/mp3"
                             )
                 except Exception as e:
@@ -163,23 +160,23 @@ else:
     if col_a.button("🕌 Islamic Story"):
         preset_topic = "اسلام کی تاریخ کا ایک خوبصورت اور سبق آموز واقعہ، جو نہایت ادب اور احترام کے ساتھ بیان کیا گیا ہے۔"
     if col_b.button("📈 Trading Tip"):
-        preset_topic = "Top risk management trading strategies for beginners."
+        preset_topic = "Top risk management trading strategies for beginners in Urdu."
     if col_c.button("📜 Urdu Shayari"):
         preset_topic = "زندگی اور جدوجہد پر بہترین اردو شاعری اور گہرے الفاظ۔"
     if col_d.button("😱 Horror Story"):
         preset_topic = "ایک ویران حویلی اور پرراسرار واقعہ۔"
 
-    prompt = st.text_input("Enter Story Topic:", value=preset_topic if preset_topic else "A Brave Hero")
+    prompt = st.text_input("Enter Story Topic:", value=preset_topic if preset_topic else "ایک بہادر انسان کی کہانی")
     category = st.selectbox("Story Category:", ["Moral / Islamic / Sabaq Amoz", "Poetry / Shayari", "Action / Adventure", "Funny / Mazahiya", "Mystery / Raaz"])
     api_key = st.text_input("Groq Free API Key (Optional):", type="password")
 
-    if st.button("Generate AI Story"):
+    if st.button("Generate AI Story 🚀"):
         if prompt:
             with st.spinner("Generating AI Content..."):
                 story_text = ""
                 
-                system_instruction = "You are a respectful storyteller. Generate engaging content in the same language as input."
-                if "Islamic" in category or "🕌" in selected_voice_name:
+                system_instruction = "You are a respectful Urdu storyteller. Generate engaging content in natural Urdu."
+                if "Islamic" in category:
                     system_instruction = "You are a deeply respectful Islamic storyteller. Use highly respectful, polite, and honorific language (Adab and Ahteram)."
 
                 if api_key:
@@ -192,7 +189,7 @@ else:
                             "model": "llama3-8b-8192",
                             "messages": [
                                 {"role": "system", "content": system_instruction},
-                                {"role": "user", "content": f"Write a {category} content about: {prompt}."}
+                                {"role": "user", "content": f"Write a {category} story in Urdu about: {prompt}."}
                             ]
                         }
                         res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers)
